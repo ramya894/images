@@ -1,0 +1,33 @@
+version: '3.1'
+
+services:  
+  wp-fpm:
+    image: appsvcorg/wordpress-mutli-container:0.1-fpm
+    restart: always
+    depends_on:      
+      - redis   
+    volumes:
+      - ${WEBAPP_STORAGE_HOME}/site/wwwroot:/var/www/html
+      - ${WEBAPP_STORAGE_HOME}/LogFiles/php:/var/log/php
+    ports:
+      - 2222:2222
+    environment:
+      # use local redis
+      WP_REDIS_HOST: redis       
+      # SSL ENABLE SQL
+      MYSQL_SSL_CA_PATH: '/'
+
+  redis:
+    image: redis:3-alpine
+    restart: always
+
+  nginx:
+    image: appsvcorg/nginx-mutli-container:0.1-wordpress-fpm
+    restart: always
+    depends_on:
+      - wp-fpm
+    ports:
+      - 80:80
+    volumes:
+      - ${WEBAPP_STORAGE_HOME}/site/wwwroot:/var/www/html
+      - ${WEBAPP_STORAGE_HOME}/LogFiles/nginx:/var/log/nginx

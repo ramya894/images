@@ -1,0 +1,29 @@
+version: '3.3'
+
+services:
+   db:
+     image: leonzhang77/mysql-mutli-container:0.1
+     volumes:
+      - /tmp/cgroup:/sys/fs/cgroup
+     ports:
+      - "3306:3306"
+     restart: always
+
+   wordpress:
+     depends_on:
+       - db
+       - redis
+     image: leonzhang77/wordpress-mutli-container:0.1-git
+     #links:
+     #  - db     
+     ports:
+       - "80:80"
+       - "2222:2222"
+     restart: always
+     environment:
+       WP_REDIS_HOST: redis
+       DATABASE_TYPE: local
+   
+   redis:
+     image: redis:3-alpine
+     restart: always

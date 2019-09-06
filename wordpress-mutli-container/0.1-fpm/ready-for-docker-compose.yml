@@ -1,0 +1,42 @@
+version: '3.1'
+
+services:  
+  wp-fpm:
+    image: appsvcorg/wordpress-mutli-container:0.1-fpm
+    restart: always
+    depends_on:      
+      - redis   
+    volumes:
+      - /home/site/wwwroot:/var/www/html
+      - /home/LogFiles/php:/var/log/php
+    ports:
+      - 2222:2222
+    environment:
+      # when deploy to Azure App Service, 
+      # move the enviroment varibles to Application settings 
+      # in App Service and put references here      
+      WORDPRESS_DB_HOST: 'rglz-westus-mysql-ssl.mysql.database.azure.com'
+      WORDPRESS_DB_USER: 'sumuth@rglz-westus-mysql-ssl'
+      WORDPRESS_DB_PASSWORD: 'iis6!dfu'
+      WORDPRESS_DB_NAME: wordpress
+      # use local redis
+      WP_REDIS_HOST: redis       
+      # SSL ENABLE SQL
+      MYSQL_SSL_CA_PATH: '/'
+
+  redis:
+    image: redis:3-alpine
+    restart: always
+
+  nginx:
+    image: appsvcorg/nginx-mutli-container:0.1-wordpress-fpm
+    restart: always
+    depends_on:
+      - wp-fpm
+    ports:
+      - 80:80
+    #  - 2222:2222
+    volumes:
+      - /home/site/wwwroot:/var/www/html
+      - /home/LogFiles/nginx:/var/log/nginx
+

@@ -1,0 +1,26 @@
+version: '3.3'
+
+services: 
+   wordpress:
+     container_name: wordpress
+     depends_on:
+       - redis
+     image: appsvcorg/wordpress-mutli-container:0.1     
+     ports:
+       - "80:80"
+       - "2222:2222"
+     restart: always
+     environment:
+       WP_REDIS_HOST: redis
+     volumes:
+      - ${WEBAPP_STORAGE_HOME}/site/wwwroot:/var/www/html
+      - ${WEBAPP_STORAGE_HOME}/phpmyadmin:/var/www/phpmyadmin
+      - ${WEBAPP_STORAGE_HOME}/LogFiles:/var/log 
+     
+   redis:
+    container_name: redis
+    image: redis:3-alpine
+    ports:
+      - "6379:6379"
+    restart: always
+    
